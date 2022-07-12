@@ -2,35 +2,44 @@
 const AWS = require('aws-sdk');
 
 module.exports.get = async (event) => {
-//   const body = JSON.parse((event.body).toString());
-  const dynamoDb = new AWS.DynamoDB.DocumentClient();
-  const putParams = {
+  
+  const params = {
     TableName: process.env.DYNAMODB_CUSTOMER_TABLE,
-    Key: {
-      id: "karthi",
-    },
   };
- const data= await dynamoDb.getItem(params, function(err, data) {
-    if (err) {
-      console.log("Error", err);
+  getData(params).then((data)=>{
+  return {
+    statusCode :  201,
+    message: "Data found",
+    data: data
+  };
+  }).catch((err)=>{
       return {
-        statusCode :  500,
-        message: "Data not found",
-        data: err
-      };
-    } else {
-      console.log("Success", data.Item);
-      return {
-        statusCode :  201,
-        message: "Data found",
-        data: data
-      };
-    }
-  });;
+    statusCode :  500,
+    message: err,
+  };
+  })
 
-//   return {
-//     statusCode :  201,
-//     message: "Data found",
-//     data: data
-//   };
+
 };
+function getData(params){
+    const dynamoDb = new AWS.DynamoDB.DocumentClient();
+    return new Promise((resolve, reject)=>{
+        const data= await dynamoDb.scan(params).promise()
+ .then(data => {            
+     const customer = [];
+     for (let i = 0; i < data.Items.length; i++) {
+        console.log("data.items",data.Items[i], data.Items.length)
+        customer.push({
+             id: data.Items[i].id,
+             name: data.Items[i].name,
+         });        
+     }
+     console.log("customer", customer)         
+     resolve(customer)
+    })
+ .catch(err => {
+     console.log(err)
+     reject(err)
+ })
+    })
+}
