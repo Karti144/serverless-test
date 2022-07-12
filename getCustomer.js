@@ -21,7 +21,7 @@ module.exports.get = async (event) => {
 
 
 };
-function getData(params){
+async function getData(params){
     const dynamoDb = new AWS.DynamoDB.DocumentClient();
     return new Promise((resolve, reject)=>{
         const data= await dynamoDb.scan(params).promise()

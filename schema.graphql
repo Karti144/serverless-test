@@ -1,12 +1,24 @@
 schema {
     query: Query
     mutation: Mutation
+    subscription: Subscription
 }
 type Query {
     getCustomer: [Get!]
 }
+type Subscription{
+    Customer: Create
+    @aws_subscribe(mutations: ["createCustomer"])
+}
+subscription MySubscription {
+    Customer {
+        id 
+        name
+        email
+    }
+}
 type Mutation{
-    createCustomer(id: String!, name: String!, email: String!):Create
+    createCustomer(id: String!, name: String!, email: String!):Create!
     updateCustomer(id:String!, name:String, email: String): Update
     deleteCustomer(id: String!): Delete
 }
@@ -16,7 +28,7 @@ type Get{
     email: String
 }
 type Create {
-    id: String!
+    id: String
     name: String
     email: String
 }
