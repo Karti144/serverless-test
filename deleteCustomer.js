@@ -1,20 +1,22 @@
 'use strict';
 const AWS = require('aws-sdk');
 
-module.exports.createCustomer = async (event) => {
+module.exports.delete = async (event) => {
   const body = JSON.parse((event.body).toString());
   const dynamoDb = new AWS.DynamoDB.DocumentClient();
+  const id=body.name
   const putParams = {
     TableName: process.env.DYNAMODB_CUSTOMER_TABLE,
-    Item: {
-      id: body.name,
-      name: body.name,
-      email: body.email,
-    },
+   Key:{
+    "id":{
+        S:id
+    }
+   }
   };
-  await dynamoDb.put(putParams).promise();
+  await dynamoDb.delete(putParams).promise();
 
   return {
     statusCode: 201,
+    message: "Deleted Successfully"
   };
 };

@@ -19,6 +19,58 @@ provider:
           Resource: arn:aws:dynamodb:${aws:region}:${aws:accountId}:table/${self:service}-customerTable-${sls:stage}
   environment:
     DYNAMODB_CUSTOMER_TABLE: ${self:service}-customerTable-${sls:stage}
+
+custom: 
+  CREATE_CUSTOMER: create_customer
+
+  appSync: 
+    name: appsync-create-customer-apis
+    authenticationType: API_KEY
+    mappingTemplates:
+      - type: Mutation
+        field: createCustomer
+        dataSource: createCustomer
+        request: false
+        response: false
+
+      - type: Mutation
+        field: updateCustomer
+        dataSource: updateCustomer
+        request: false
+        response: false
+
+      - type: Mutation
+        field: deleteCustomer
+        dataSource: deleteCustomer
+        request: false
+        response: false
+
+      - type: Query
+        field: getCustomer
+        dataSource: getCustomer
+        request: false
+        response: false
+
+    dataSources:
+      - type: AWS_LAMBDA
+        name: createCustomer
+        config:
+          functionName: createCustomer
+
+      - type: AWS_LAMBDA
+        name: updateCustomer
+        config:
+          functionName: updateCustomer
+      - type: AWS_LAMBDA
+        name: deleteCustomer
+        config:
+          functionName: deleteCustomer          
+
+      - type: AWS_LAMBDA
+        name: getCustomer
+        config:
+          functionName: getCustomer
+
 functions:
   hello:
     handler: handler.hello
@@ -27,24 +79,45 @@ functions:
           path: /
           method: get
 
-  CreateCustomer:
+  createCustomer:
     handler: CreateCustomer.createCustomer
     events:
       - httpApi:
           path: /create
           method: post
-	
+  updateCustomer:
+    handler: updateCustomer.update
+    events:
+      - httpApi:
+          path: /update
+          method: put
+  deleteCustomer:
+    handler: deleteCustomer.delete
+    events:
+      - httpApi:
+          path: /delete
+          method: post
+  getCustomer:
+    handler: getCustomer.get
+    events:
+      - httpApi:
+          path: /get
+          method: get
+
 resources:
   Resources:
     CustomerTable:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:
-          - AttributeName: primary_key
+          - AttributeName: id
             AttributeType: S
         BillingMode: PAY_PER_REQUEST
         KeySchema:
-          - AttributeName: primary_key
+          - AttributeName: id
             KeyType: HASH
         TableName: ${self:service}-customerTable-${sls:stage}
 
+plugins:
+   - serverless-appsync-plugin
+   - serverless-pseudo-parameters

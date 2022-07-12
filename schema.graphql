@@ -1,0 +1,30 @@
+schema {
+    query: Query
+    mutation: Mutation
+}
+type Query {
+    getCustomer: [Get!]
+}
+type Mutation{
+    createCustomer(id: String!, name: String!, email: String!):Create
+    updateCustomer(id:String!, name:String, email: String): Update
+    deleteCustomer(id: String!): Delete
+}
+type Get{
+    id: String
+    name: String
+    email: String
+}
+type Create {
+    id: String!
+    name: String
+    email: String
+}
+type Update{
+    id: String!
+    name: String
+    email: String
+}
+type Delete{
+    id: String!
+}
